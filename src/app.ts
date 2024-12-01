@@ -17,12 +17,12 @@ app.use(cors());
 // application routes
 app.use('/api/v1', router);
 
-const test = (req: Request, res: Response) => {
-  const a = 10;
-  res.send(a);
-};
-
-app.get('/', test);
+app.get('/', (req, res) => {
+  res.json({
+    status: 'success',
+    message: 'University Server is running!!!',
+  });
+});
 
 app.use(globalErrorHandler);
 
