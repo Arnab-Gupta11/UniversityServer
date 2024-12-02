@@ -38,6 +38,18 @@ const academicSemisterSchema = new Schema<TAcademicSemester>(
   },
 );
 
+//Checking semister is already exist or not.
+academicSemisterSchema.pre('save', async function (next) {
+  const isSemeterExists = await AcademicSemister.find({
+    name: this.name,
+    year: this.year,
+  });
+  if (isSemeterExists) {
+    throw new Error('Semester is already exists !!!');
+  }
+  next();
+});
+
 export const AcademicSemister = model<TAcademicSemester>(
   'AcademicSemister',
   academicSemisterSchema,
