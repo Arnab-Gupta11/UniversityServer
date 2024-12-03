@@ -40,7 +40,7 @@ const academicSemisterSchema = new Schema<TAcademicSemester>(
 
 //Checking semister is already exist or not.
 academicSemisterSchema.pre('save', async function (next) {
-  const isSemeterExists = await AcademicSemister.find({
+  const isSemeterExists = await AcademicSemister.findOne({
     name: this.name,
     year: this.year,
   });

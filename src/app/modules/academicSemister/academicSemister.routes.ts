@@ -13,4 +13,14 @@ router
     ),
     AcademicSemisterControllers.createAcademicSemister,
   );
+router.route('/').get(AcademicSemisterControllers.getAllAcademicSemister);
+router
+  .route('/:semesterId')
+  .get(AcademicSemisterControllers.getSingleAcademicSemister)
+  .patch(
+    validateRequest(
+      AcademicSemisterValidations.updateAcademicSemesterValidationSchema,
+    ),
+    AcademicSemisterControllers.updateAcademicSemister,
+  );
 export const AcademicSemesterRoutes = router;
