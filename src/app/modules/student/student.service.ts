@@ -4,9 +4,31 @@ import { Student } from './student.model';
 import { User } from '../user/user.model';
 import mongoose from 'mongoose';
 import { TStudent } from './student.interface';
+import { studentSearchableFields } from './student.constant';
+import QueryBuilder from '../../builder/QueryBuilder';
 
-const getAllStudentsFromDB = async () => {
-  const result = await Student.find()
+const getAllStudentsFromDB = async (query: Record<string, unknown>) => {
+  //Manually write code.
+  /*
+  const queryObj = { ...query };
+  let searchTerm = '';
+  // IF searchTerm  IS GIVEN SET IT
+  if (query?.searchTerm) {
+    searchTerm = query?.searchTerm as string;
+  }
+  // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH  :
+  // { email: { $regex : query.searchTerm , $options: i}}
+  //Searching Functionality: WE ARE DYNAMICALLY DOING IT USING LOOP
+  const searchQuery = Student.find({
+    $or: studentSearchableFields.map((field) => ({
+      [field]: { $regex: searchTerm, $options: 'i' },
+    })),
+  });
+  //Filtering Functionality
+  //Delting query field accept filtering field.
+  excludeFields.forEach((el) => delete queryObj[el]);
+  const filterQuery = searchQuery
+    .find(queryObj)
     .populate('user')
     .populate('admissionSemester')
     .populate({
@@ -15,6 +37,72 @@ const getAllStudentsFromDB = async () => {
         path: 'academicFaculty',
       },
     });
+  //Sorting functionality
+  let sort = '-createdAt'; // SET DEFAULT VALUE
+  // IF sort  IS GIVEN SET IT
+  if (query?.sort) {
+    sort = query.sort as string;
+  }
+  const sortQuery = filterQuery.sort(sort);
+
+  //Pagination functionality
+  let page = 1; // SET DEFAULT VALUE FOR PAGE
+  let limit = 1; // SET DEFAULT VALUE FOR LIMIT
+  let skip = 0; // SET DEFAULT VALUE FOR SKIP
+
+  // IF limit IS GIVEN SET IT
+
+  if (query.limit) {
+    limit = Number(query.limit);
+  }
+
+  // IF page IS GIVEN SET IT
+
+  if (query.page) {
+    page = Number(query.page);
+    skip = (page - 1) * limit; //coalculate how many document should skip in each page.
+  }
+
+  const paginateQuery = sortQuery.skip(skip);
+
+  const limitQuery = paginateQuery.limit(limit);
+
+  // FIELDS LIMITING FUNCTIONALITY:
+
+  // HOW OUR FORMAT SHOULD BE FOR PARTIAL MATCH
+
+  //fields: 'name,email'; // WE ARE ACCEPTING FROM REQUEST
+  //fields: 'name email'; // HOW IT SHOULD BE
+
+  let fields = '-__v'; // SET DEFAULT VALUE
+
+  if (query.fields) {
+    fields = (query.fields as string).split(',').join(' ');
+  }
+
+  const fieldQuery = await limitQuery.select(fields);
+
+  return fieldQuery;
+  */
+
+  const studentQuery = new QueryBuilder(
+    Student.find()
+      .populate('user')
+      .populate('admissionSemester')
+      .populate({
+        path: 'academicDepartment',
+        populate: {
+          path: 'academicFaculty',
+        },
+      }),
+    query,
+  )
+    .search(studentSearchableFields)
+    .filter()
+    .sort()
+    .paginate()
+    .fields();
+  const result = await studentQuery.modelQuery;
   return result;
 };
 
