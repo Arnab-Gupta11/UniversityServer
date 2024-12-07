@@ -17,6 +17,7 @@ app.use(cors());
 // application routes
 app.use('/api/v1', router);
 
+//Base routes
 app.get('/', (req, res) => {
   res.json({
     status: 'success',
@@ -24,6 +25,7 @@ app.get('/', (req, res) => {
   });
 });
 
+//Error handler
 app.use(globalErrorHandler);
 
 //Not Found
