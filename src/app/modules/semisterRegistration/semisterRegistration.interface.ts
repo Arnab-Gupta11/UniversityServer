@@ -1,6 +1,6 @@
 import { Types } from 'mongoose';
 
-export type TSemisterRegistration = {
+export type TSemesterRegistration = {
   academicSemester: Types.ObjectId;
   status: 'UPCOMING' | 'ONGOING' | 'ENDED';
   startDate: Date;
